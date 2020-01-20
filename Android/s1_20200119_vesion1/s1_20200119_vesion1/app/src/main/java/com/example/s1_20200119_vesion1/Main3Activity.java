@@ -24,6 +24,9 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
     private TextView txtBack;
     private TextView txtHead;
     private TextView txtnewsn;
+    String dd = "";
+    String gg = "";
+    String nnnn = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +34,8 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_main3);
 
         Intent intent = getIntent();
-        String data = intent.getStringExtra("data");
+        String joo = intent.getStringExtra("data");
+
 
         txtAssetName = findViewById(R.id.txt3AstName);
         txtSN = findViewById(R.id.txt3sn);
@@ -43,11 +47,10 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
         txtSave = findViewById(R.id.txt3Save);
 
         txtnewsn = findViewById(R.id.txt3newsn);
-        String format = String.format("%05s", 9, 8);
-        txtnewsn.setText(format);
 
+        txtnewsn.setText(dd + gg + nnnn);
+        JSONObject data = myJosnReader(joo);
 
-        myJosnReader(data);
         action();
     }
 
@@ -58,19 +61,23 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
 
     }
 
-    private void myJosnReader(String jj) {
+    private JSONObject myJosnReader(String jj) {
         try {
             JSONObject data = new JSONObject(jj);
             String assetName = data.getString("assetName");
             String depName = data.getString("depName");
             String sn = data.getString("sn");
+            String id = data.getString("id");
+            id = dd;
             txtDep.setText(depName);
             txtAssetName.setText(assetName);
             txtSN.setText(sn);
+
+            return data;
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
+        return null;
     }
 
 

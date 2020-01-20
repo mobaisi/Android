@@ -19,7 +19,6 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,7 +30,7 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private String IP = "http://192.168.43.193/";
+    private String IP = "http://172.16.123.120/";
     private Spinner spDep;
     private Spinner spAssetGroup;
     private ImageView imgAdd;
@@ -152,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         myAdapter = new MyAdapter(datas, MainActivity.this) {
 
 
+            private int tag;
             private TextView txt3;
             private TextView txt2;
             private TextView txt1;
@@ -163,7 +163,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View view) {
                 super.onClick(view);
+                tag = (int) view.getTag();
                 switch (view.getId()) {
+
                     case R.id.lst_img1:
 
                         break;
@@ -171,7 +173,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         Intent intent = new Intent(MainActivity.this, Main3Activity.class);
                         try {
-                            String s = datas.getJSONObject((int) view.getTag()).toString();
+
+                            String s = datas.getJSONObject(tag).toString();
                             intent.putExtra("data", s);
                            // Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
                         } catch (JSONException e) {
@@ -180,7 +183,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         startActivity(intent);
                         break;
                     case R.id.lst_img3:
+                        Intent intent1 = new Intent(MainActivity.this, Main4Activity.class);
+                        try {
 
+                            String s = datas.getJSONObject(tag).toString();
+                            intent1.putExtra("data", s);
+                            // Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        startActivity(intent1);
                         break;
 
                 }
@@ -210,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     img1 = vh.getView(R.id.lst_img1);
                     img2 = vh.getView(R.id.lst_img2);
                     img3 = vh.getView(R.id.lst_img3);
-                    txt1 = vh.getView(R.id.lst_txt1);
+                    txt1 = vh.getView(R.id.lst3_txt2);
                     txt2 = vh.getView(R.id.lst_txt2);
                     txt3 = vh.getView(R.id.lst_txt3);
                     img1.setTag(i);
@@ -218,6 +230,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     img3.setTag(i);
 
                     img2.setOnClickListener(this);
+                    img3.setOnClickListener(this);
                     try {
                         JSONObject data = datas.getJSONObject(i);
                         txt1.setText(data.getString("assetName"));
@@ -242,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         e.printStackTrace();
                     }
                 }
-                ;
+
 
                 return view;
             }

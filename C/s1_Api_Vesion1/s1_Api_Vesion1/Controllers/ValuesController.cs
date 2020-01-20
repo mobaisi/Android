@@ -69,6 +69,42 @@ namespace s1_Api_Vesion1.Controllers
             return Json(new Result<List<MyAsset>> { code = 200, count = db.Assets.Count(), msg = "ok", data = dt.Select(s => new MyAsset { id = s.ID, assetName = s.AssetName, depName = s.DepartmentLocation.Department.Name,sn = s.AssetSN }).ToList() });
         }
 
+        public IHttpActionResult History ([FromBody]IDName obj)
+        {
+
+
+            if (obj!=null)
+            {
+
+                return Json(new Result<List<History>>() { code = 200, msg = "ok",data =  
+                    db.AssetTransferLogs
+                    .Where(s => s.AssetID == obj.id)
+                    .Select(s => new History { date = s.TransferDate.ToString(), from1 = s.DepartmentLocation.Department.Name,from2 = s.FromAssetSN,
+                     to1 = s.DepartmentLocation1.Department.Name,to2 = s.ToAssetSN
+                }).ToList() });
+
+            }
+            return Json(new Result<String>() {  code =404 , msg ="Error"});
+
+        }
+    }
+
+    public class History {
+        public string date { get; set; }
+        public string from1 { get; set; }
+        public string from2 { get; set; }
+
+        public string to1 { get; set; }
+
+        public string to2 { get; set; }
+
+
+    }
+
+
+    public class IDName {
+        public long id { get; set; }
+        public String  name { get; set; }
 
     }
 
