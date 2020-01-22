@@ -1,21 +1,30 @@
 package com.example.s1_20200119_vesion1;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.OnLifecycleEvent;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.JsonReader;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
-public class Main3Activity extends AppCompatActivity implements View.OnClickListener {
+import java.util.ArrayList;
+import java.util.HashMap;
 
+public class Main3Activity extends AppCompatActivity implements View.OnClickListener {
+    private String IP = "http://192.168.1.7/";
     private TextView txtDep;
     private TextView txtSN;
     private TextView txtAssetName;
@@ -27,6 +36,12 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
     String dd = "";
     String gg = "";
     String nnnn = "";
+    private Spinner spDepName;
+    private Spinner spDepLocation;
+    private JSONArray depLocations;
+    private JSONArray depNames;
+    private ArrayList<String> list;
+    private ArrayAdapter<String> strAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +61,53 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
         txtCancel = findViewById(R.id.txt3Cancel);
         txtSave = findViewById(R.id.txt3Save);
 
+        spDepName = findViewById(R.id.sp3DepName);
+        spDepLocation = findViewById(R.id.sp3DepLocation);
+
+
+//        openFileInput("oue");
+
         txtnewsn = findViewById(R.id.txt3newsn);
 
         txtnewsn.setText(dd + gg + nnnn);
         JSONObject data = myJosnReader(joo);
-
         action();
+        list = new ArrayList<>();
+        depNames = new JSONArray();
+        depLocations = new JSONArray();
+        MyTask myTask = new MyTask(IP + "api/Values/getCmb") {
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                MyJsonReader(s);
+                strAdapter.notifyDataSetChanged();
+               // strAdapter.setNotifyOnChange(true);
+            }
+        };
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("status", 1);
+        myTask.Post(map);
+
+
+        strAdapter = new ArrayAdapter<>(Main3Activity.this, R.layout.support_simple_spinner_dropdown_item, list);
+      //  locationAdapter = new MyAdapter(depLocations, Main3Activity.this);
+        Spinner sp = findViewById(R.id.spinner);
+        sp.setAdapter(new ArrayAdapter<String>(Main3Activity.this,R.layout.support_simple_spinner_dropdown_item,new String[]{"1","2","3"}));
+
+        spDepName.setAdapter(strAdapter);
+        spDepLocation.setAdapter(strAdapter);
+    }
+
+    private void MyJsonReader(String s) {
+        try {
+            JSONObject object = new JSONObject(s);
+            depNames = object.getJSONArray("data");
+            for (int i = 0; i < depNames.length(); i++) {
+                list.add(depNames.optJSONObject(i).optString("name"));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void action() {
@@ -59,6 +115,30 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
         txtBack.setOnClickListener(this);
         txtCancel.setOnClickListener(this);
 
+        spDepName.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Toast.makeText(Main3Activity.this, "99", Toast.LENGTH_SHORT).show();
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    //    showDialog();
+                }
+                return false;
+            }
+        });
+
+    }
+
+    private void showDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(Main3Activity.this);
+        builder.setTitle("Select Your Need !");
+        builder.setMessage("OpenFileInPut Stream !");
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        builder.show();
     }
 
     private JSONObject myJosnReader(String jj) {

@@ -87,6 +87,34 @@ namespace s1_Api_Vesion1.Controllers
             return Json(new Result<String>() {  code =404 , msg ="Error"});
 
         }
+
+        [HttpPost]
+        
+        public IHttpActionResult getCmb([FromBody]IDName name)
+        {
+            if (name.status ==1)
+            {
+                return Json(new Result<List<IDName>>() {
+                    code = 200, msg = "ok",
+                    data = db.Departments
+                    .Select(s => new IDName { id = s.ID, name = s.Name }).ToList() });
+            }
+            else if (name.status==2&&name.id!=null)
+            {
+                return Json(new Result<List<IDName>>()
+                {
+                    code = 200,
+                    msg = "ok",
+                    data = db.DepartmentLocations
+                    .Where(s=>s.DepartmentID ==name.id)
+                   .Select(s => new IDName { id = s.ID, name = s.Location.Name }).ToList()
+                });
+            }
+
+
+            return Json(new Result<String>() { code = 404, msg = "Error" });
+
+        }
     }
 
     public class History {
@@ -103,6 +131,8 @@ namespace s1_Api_Vesion1.Controllers
 
 
     public class IDName {
+        public int status { get; set; }
+
         public long id { get; set; }
         public String  name { get; set; }
 

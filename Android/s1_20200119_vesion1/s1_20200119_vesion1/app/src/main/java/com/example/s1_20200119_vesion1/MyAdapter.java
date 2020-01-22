@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.AbstractList;
 import java.util.HashMap;
@@ -35,7 +36,7 @@ public class MyAdapter extends BaseAdapter implements View.OnClickListener {
     }
 
     @Override
-    public Object getItem(int i) {
+    public JSONObject getItem(int i) {
         try {
             return datas.getJSONObject(i);
         } catch (JSONException e) {

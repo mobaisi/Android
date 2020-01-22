@@ -30,7 +30,7 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private String IP = "http://172.16.123.120/";
+    private String IP = "http://192.168.1.7/";
     private Spinner spDep;
     private Spinner spAssetGroup;
     private ImageView imgAdd;
