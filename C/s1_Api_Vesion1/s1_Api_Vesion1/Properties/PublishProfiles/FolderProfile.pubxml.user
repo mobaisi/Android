@@ -232,10 +232,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/22/2020 19:08:53</publishTime>
     </File>
     <File Include="bin/s1_Api_Vesion1.dll">
-      <publishTime>01/23/2020 19:20:23</publishTime>
+      <publishTime>01/24/2020 00:01:23</publishTime>
     </File>
     <File Include="bin/s1_Api_Vesion1.pdb">
-      <publishTime>01/23/2020 19:20:23</publishTime>
+      <publishTime>01/24/2020 00:01:23</publishTime>
     </File>
     <File Include="bin/System.Net.Http.Formatting.dll">
       <publishTime>01/22/2020 19:08:52</publishTime>

@@ -358,6 +358,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 txtDate1.setText("Start Date");
                 spDep.setSelection(0);
                 spAssetGroup.setSelection(0);
+                new MyTask(IP + "api/Values/PostList") {
+                    @Override
+                    protected void onPostExecute(String s) {
+                        super.onPostExecute(s);
+                        JooReader(s);
+                        Log.d("ContentValues:", "onPostExecute: " + s);
+                    }
+                }.Post(new HashMap());
                 break;
             case R.id.imgAdd:
                 Intent intent = new Intent(MainActivity.this, Main2Activity.class);

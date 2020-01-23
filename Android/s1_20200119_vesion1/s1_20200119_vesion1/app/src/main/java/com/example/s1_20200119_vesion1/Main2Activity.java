@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -271,7 +272,6 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
     }
 
 
-
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -282,14 +282,54 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
                 finish();
                 break;
             case R.id.lblSave:
-                Toast.makeText(this, "Save Complete", Toast.LENGTH_SHORT).show();
-                finish();
+                save();
+                //     Toast.makeText(this, "Save Complete", Toast.LENGTH_SHORT).show();
+                //  finish();
                 break;
             case R.id.lblCancel:
                 finish();
                 break;
 
         }
+    }
+
+    private void save() {
+        String assetName = edt2AssetName.getText().toString().trim();
+        if (assetName.isEmpty()) {
+            Toast.makeText(this, "AssetName is Empty!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String description = edt2Description.getText().toString().trim();
+
+
+        if (description.isEmpty()) {
+            Toast.makeText(this, "Description is Empty!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (spDepLocation.getSelectedItemPosition() < 0) {
+            Toast.makeText(this, "DepartmentLocation is not Selected!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Toast.makeText(this, assetName, Toast.LENGTH_SHORT).show();
+
+        HashMap<String, Object> map = new HashMap<>();
+
+        try {
+            map.put("assetName", assetName);
+            map.put("description",description);
+            map.put("assetGroup",  assetGroups.getJSONObject(spAssetGroup.getSelectedItemPosition()).optInt("id"));
+            map.put("DepId",  depNames.getJSONObject(spDepName.getSelectedItemPosition()).optInt("id"));
+            map.put("DepLocationId",  depLocation.getJSONObject(spDepLocation.getSelectedItemPosition()).optInt("id"));
+            map.put("employeeId", unKnows.getJSONObject(spUnKnow.getSelectedItemPosition()).optInt("id"));
+            map.put("SN", txtSN.getText().toString());
+            map.put("date", txtDate.getText().toString());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        new MyTask(IP + "api/Values/postAsset").Post(map);
+
     }
 
     private void getDate(final TextView txt) {
