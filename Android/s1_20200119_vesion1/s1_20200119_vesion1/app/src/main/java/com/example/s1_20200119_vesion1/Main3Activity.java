@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -21,6 +22,7 @@ import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 public class Main3Activity extends AppCompatActivity implements View.OnClickListener {
@@ -42,6 +44,8 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
     private JSONArray depNames;
     private ArrayList<String> list;
     private ArrayAdapter<String> strAdapter;
+    private ArrayAdapter<String> strAdapter1;
+    private ArrayList<String> list1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,28 +55,20 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
         Intent intent = getIntent();
         String joo = intent.getStringExtra("data");
 
+        init();
 
-        txtAssetName = findViewById(R.id.txt3AstName);
-        txtSN = findViewById(R.id.txt3sn);
-        txtDep = findViewById(R.id.txt3CurrentDep);
-        txtBack = findViewById(R.id.heae_lblBack);
-        txtHead = findViewById(R.id.head_lblTitle);
-        txtHead.setText("Asset Transfer");
-        txtCancel = findViewById(R.id.txt3Cancel);
-        txtSave = findViewById(R.id.txt3Save);
 
-        spDepName = findViewById(R.id.sp3DepName);
-        spDepLocation = findViewById(R.id.sp3DepLocation);
 
 
 //        openFileInput("oue");
 
         txtnewsn = findViewById(R.id.txt3newsn);
 
-        txtnewsn.setText(dd + gg + nnnn);
+       // txtnewsn.setText(dd + gg + nnnn);
         JSONObject data = myJosnReader(joo);
         action();
         list = new ArrayList<>();
+        list1 = new ArrayList<>();
         depNames = new JSONArray();
         depLocations = new JSONArray();
         MyTask myTask = new MyTask(IP + "api/Values/getCmb") {
@@ -81,21 +77,36 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
                 super.onPostExecute(s);
                 MyJsonReader(s);
                 strAdapter.notifyDataSetChanged();
-               // strAdapter.setNotifyOnChange(true);
+                // strAdapter.setNotifyOnChange(true);
             }
         };
+
         HashMap<String, Object> map = new HashMap<>();
         map.put("status", 1);
         myTask.Post(map);
+        adapter();
+    }
 
-
+    private void adapter() {
         strAdapter = new ArrayAdapter<>(Main3Activity.this, R.layout.support_simple_spinner_dropdown_item, list);
-      //  locationAdapter = new MyAdapter(depLocations, Main3Activity.this);
-        Spinner sp = findViewById(R.id.spinner);
-        sp.setAdapter(new ArrayAdapter<String>(Main3Activity.this,R.layout.support_simple_spinner_dropdown_item,new String[]{"1","2","3"}));
-
+        strAdapter1 = new ArrayAdapter<>(Main3Activity.this, R.layout.support_simple_spinner_dropdown_item, list1);
         spDepName.setAdapter(strAdapter);
-        spDepLocation.setAdapter(strAdapter);
+        spDepLocation.setAdapter(strAdapter1);
+    }
+
+    private void init() {
+        spDepName = findViewById(R.id.sp3DepName);
+        spDepLocation = findViewById(R.id.sp3DepLocation);
+        txtAssetName = findViewById(R.id.txt3AstName);
+        txtSN = findViewById(R.id.txt3sn);
+        txtDep = findViewById(R.id.txt3CurrentDep);
+        txtBack = findViewById(R.id.heae_lblBack);
+        txtHead = findViewById(R.id.head_lblTitle);
+        txtHead.setText("Asset Transfer");
+        txtCancel = findViewById(R.id.txt3Cancel);
+        txtSave = findViewById(R.id.txt3Save);
+        TextView txt3Date = findViewById(R.id.txt3Date);
+        txt3Date.setText(String.format("年-月-日 HH:MM:SS 格式：%tF %<tT",new Date()));
     }
 
     private void MyJsonReader(String s) {
@@ -110,22 +121,81 @@ public class Main3Activity extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    private void MyJsonReader1(String s) {
+        try {
+            JSONObject object = new JSONObject(s);
+            depLocations = object.getJSONArray("data");
+            list1.clear();
+            for (int i = 0; i < depLocations.length(); i++) {
+                list1.add(depLocations.optJSONObject(i).optString("name"));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void action() {
         txtSave.setOnClickListener(this);
         txtBack.setOnClickListener(this);
         txtCancel.setOnClickListener(this);
 
-        spDepName.setOnTouchListener(new View.OnTouchListener() {
+        spDepName.setOnTouchListener((v, g) -> {
+            Toast.makeText(Main3Activity.this, "99", Toast.LENGTH_SHORT).show();
+            if (g.getAction() == MotionEvent.ACTION_DOWN) {
+                //    showDialog();
+            }
+            return false;
+
+        });
+        spDepName.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                Toast.makeText(Main3Activity.this, "99", Toast.LENGTH_SHORT).show();
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    //    showDialog();
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                try {
+                    JSONObject jsonObject = depNames.getJSONObject(i);
+                    MyTask myTask1 = new MyTask(IP + "api/Values/getCmb") {
+                        @Override
+                        protected void onPostExecute(String s) {
+                            super.onPostExecute(s);
+                            MyJsonReader1(s);
+                            strAdapter1.notifyDataSetChanged();
+                            // strAdapter.setNotifyOnChange(true);
+                        }
+                    };
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("status", 2);
+                    map.put("id", jsonObject.optString("id"));
+                    myTask1.Post(map);
+
+
+                    String sn = txtSN.getText().toString().substring(2);
+                    Toast.makeText(Main3Activity.this, jsonObject.optString("id") + sn, Toast.LENGTH_SHORT).show();
+                    int id = jsonObject.optInt("id");
+                    String format = String.format("%02d", id);
+                    txtnewsn.setText(format + sn);
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                return false;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
             }
         });
+        spDepLocation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
     private void showDialog() {

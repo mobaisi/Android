@@ -19,18 +19,22 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private String IP = "http://192.168.1.7/";
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+    public String IP = "http://192.168.1.7/";
     private Spinner spDep;
     private Spinner spAssetGroup;
     private ImageView imgAdd;
@@ -41,10 +45,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView txtCount;
     private TextView txtDate2;
     private TextView txtDate1;
-    private String[] deps;
-    private String[] groups;
-    private ArrayAdapter<String> groupAdapter;
-    private ArrayAdapter<String> depAdapter;
+
     private MyAdapter myAdapter;
     private JSONArray datas;
     private SimpleDateFormat simpleDateFormat;
@@ -55,6 +56,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ListView lst_2;
     private int orientation = 1;
     private MyAdapter myAdapter1;
+
+    private ArrayList<String> lst1;
+    private ArrayList<String> lst2;
+
+    private ArrayAdapter<String> adapter;
+    private ArrayAdapter<String> adapter1;
+    private JSONArray assetGroups;
+    private JSONArray depNames;
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -79,6 +88,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        init();
+
+        adapter();
+        action();
+    }
+
+    private void init() {
         spDep = findViewById(R.id.sp3DepName);
         spAssetGroup = findViewById(R.id.spAssetGroup);
         imgAdd = findViewById(R.id.imgAdd);
@@ -95,9 +111,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         layout0 = findViewById(R.id.layout0);
         layout1 = findViewById(R.id.layout_1);
         lst_2 = findViewById(R.id.lst_F1_2);
-        InitString();
-        adapter();
-        action();
     }
 
     private void action() {
@@ -142,12 +155,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void adapter() {
-        depAdapter = new ArrayAdapter<String>(MainActivity.this, R.layout.support_simple_spinner_dropdown_item, deps);
-        groupAdapter = new ArrayAdapter<String>(MainActivity.this, R.layout.support_simple_spinner_dropdown_item, groups);
-        spDep.setAdapter(depAdapter);
-        spAssetGroup.setAdapter(groupAdapter);
+        lst1 = new ArrayList<>();
+        lst2 = new ArrayList<>();
+        adapter = new ArrayAdapter<>(MainActivity.this, R.layout.support_simple_spinner_dropdown_item, lst1);
+        adapter1 = new ArrayAdapter<>(MainActivity.this, R.layout.support_simple_spinner_dropdown_item, lst2);
+        spDep.setAdapter(adapter);
+
+        depNames = new JSONArray();
+        assetGroups = new JSONArray();
         datas = new JSONArray();
 
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("status", 1);
+        new MyTask(IP + "api/Values/getCmb") {
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                MyJsonReader(s);
+
+            }
+        }.Post(map);
+
+
+        HashMap<String, Object> map1 = new HashMap<>();
+        map1.put("status", 3);
+        new MyTask(IP + "api/Values/getCmb") {
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                MyJsonReader(s);
+            }
+        }.Post(map1);
+
+        spAssetGroup.setAdapter(adapter1);
+        spDep.setAdapter(adapter);
         myAdapter = new MyAdapter(datas, MainActivity.this) {
 
 
@@ -176,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                             String s = datas.getJSONObject(tag).toString();
                             intent.putExtra("data", s);
-                           // Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
+                            // Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -242,10 +283,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
 
                 if (orientation == 2) {
-                     imgIcon = vh.getView(R.id.lst2_imgIcon);
-                     img1 = vh.getView(R.id.lst2_img1);
-                     txt1 = vh.getView(R.id.lst2_txt1);
-                     txt2 = vh.getView(R.id.lst2_txt2);
+                    imgIcon = vh.getView(R.id.lst2_imgIcon);
+                    img1 = vh.getView(R.id.lst2_img1);
+                    txt1 = vh.getView(R.id.lst2_txt1);
+                    txt2 = vh.getView(R.id.lst2_txt2);
                     img1.setTag(i);
                     try {
                         JSONObject data = datas.getJSONObject(i);
@@ -260,59 +301,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return view;
             }
         };
-
         lst_1.setAdapter(myAdapter);
         lst_2.setAdapter(myAdapter);
-
-
     }
 
 
-    /* else if (view == null && orientation == 2) {
-                    view = LayoutInflater.from(MainActivity.this).inflate(R.layout.lst_layout2, null, false);
-                    vh = new VH(view);
-                    ImageView imgIcon = vh.getView(R.id.lst_img_icon);
-                    ImageView img1 = vh.getView(R.id.lst2_img1);
-                    TextView txt1 = vh.getView(R.id.lst2_txt1);
-                    TextView txt2 = vh.getView(R.id.lst2_txt2);
-
-                    try {
-                        JSONObject data = datas.getJSONObject(i);
-                        txt1.setText(data.getString("assetName"));
-                        txt2.setText(data.getString("sn"));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    view.setTag(vh);
-                }*/
-
-
-    /*   myAdapter1 = new MyAdapter(datas, MainActivity.this) {
-         @Override
-         public View getView(int i, View view, ViewGroup viewGroup) {
-             VH vh;
-             if (view == null) {
-                 view = LayoutInflater.from(MainActivity.this).inflate(R.layout.lst_layout2, null, false);
-                 vh = new VH(view);
-                 view.setTag(vh);
-             } else {
-                 vh = (VH) view.getTag();
-             }
-
-             return view;
-         }
-     };*/
-    private void InitString() {
-        deps = new String[]{"Select Department", "Exploration"
-                , "Production"
-                , "Transportation"
-                , "R&D"
-                , "Distribution"
-                , "QHSE"};
-        groups = new String[]{"Select AssetGroup", "Hydraulic"
-                , "Electrical"
-                , "Mechanical "};
-
+    private void MyJsonReader(String s) {
+        try {
+            JSONObject object = new JSONObject(s);
+            if (object.optInt("msg") == 1) {
+                depNames = object.getJSONArray("data");
+                for (int i = 0; i < depNames.length(); i++) {
+                    lst1.add(depNames.optJSONObject(i).optString("name"));
+                }
+                adapter.notifyDataSetChanged();
+            } else if (object.optInt("msg") == 3) {
+                assetGroups = object.getJSONArray("data");
+                lst2.clear();
+                for (int i = 0; i < assetGroups.length(); i++) {
+                    lst2.add(assetGroups.optJSONObject(i).optString("name"));
+                }
+                adapter1.notifyDataSetChanged();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void getDate(final TextView txt) {
@@ -369,9 +382,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void finder() {
         HashMap<String, Object> post = new HashMap<>();
 
-        post.put("depid", spDep.getSelectedItemPosition());
-        post.put("assetGroupId", spAssetGroup.getSelectedItemPosition());
+        try {
+            post.put("depid", depNames.optJSONObject(spDep.getSelectedItemPosition()).optInt("id"));
+            post.put("assetGroupId", assetGroups.optJSONObject(spAssetGroup.getSelectedItemPosition()).optInt("id"));
+
+        } catch (Exception e) {
+            Log.d(TAG, "finder: Error" );
+        }
+
+
         post.put("date2", txtDate2.getText().toString());
+
         //post.;
         MyTask myTask = new MyTask(IP + "api/Values/PostList") {
             @Override

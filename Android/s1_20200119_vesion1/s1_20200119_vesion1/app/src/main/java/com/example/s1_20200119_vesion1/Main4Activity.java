@@ -19,7 +19,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 public class Main4Activity extends AppCompatActivity {
-    private String IP = "http://172.16.123.120/";
+    private String IP = "http://192.168.1.7/";
     private JSONArray datas;
     private MyAdapter myAdapter;
     private String id;
@@ -35,7 +35,6 @@ public class Main4Activity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
 
         datas = new JSONArray();
         MyTask myTask = new MyTask(IP + "api/Values/History") {

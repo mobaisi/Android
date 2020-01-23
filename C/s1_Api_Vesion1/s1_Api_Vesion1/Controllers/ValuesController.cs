@@ -92,29 +92,56 @@ namespace s1_Api_Vesion1.Controllers
         
         public IHttpActionResult getCmb([FromBody]IDName name)
         {
-            if (name.status ==1)
+            if (name.status ==1)  //get Department Names
             {
                 return Json(new Result<List<IDName>>() {
-                    code = 200, msg = "ok",
+                    code = 200, msg = "1",
                     data = db.Departments
                     .Select(s => new IDName { id = s.ID, name = s.Name }).ToList() });
             }
-            else if (name.status==2&&name.id!=null)
+            else if (name.status==2&&name.id!=null)  // User Department id to get Locations
             {
                 return Json(new Result<List<IDName>>()
                 {
                     code = 200,
-                    msg = "ok",
+                    msg = "2",
                     data = db.DepartmentLocations
-                    .Where(s=>s.DepartmentID ==name.id)
+                    .Where(s=>s.DepartmentID ==name.id&&s.EndDate==null)
                    .Select(s => new IDName { id = s.ID, name = s.Location.Name }).ToList()
                 });
+            }
+            else if (name.status==3)
+            {
+                return Json(new Result<List<IDName>>() ///get AssetGroupNames
+                {
+                    code = 200,
+                    msg = "3",
+                    data = db.AssetGroups
+                   .Select(s => new IDName { id = s.ID, name = s.Name }).ToList()
+                });
+            }
+            else if (name.status ==4)  //get Start Wiith **  Count 
+            {
+                return Json(new Result<String>() {count = db.Assets.Where(s => s.AssetSN.StartsWith(name.name)).Count(),code =200, msg="4" });
+            }
+            else if (name.status==5)
+            {
+                return Json(new Result<List<IDName>>() ///get AssetGroupNames
+                {
+                    code = 200,
+                    msg = "5",
+                    data = db.Employees
+    .Select(s => new IDName { id = s.ID, name = s.FirstName +s.LastName }).ToList()
+                });
+
             }
 
 
             return Json(new Result<String>() { code = 404, msg = "Error" });
 
         }
+
+
     }
 
     public class History {
@@ -125,8 +152,6 @@ namespace s1_Api_Vesion1.Controllers
         public string to1 { get; set; }
 
         public string to2 { get; set; }
-
-
     }
 
 
