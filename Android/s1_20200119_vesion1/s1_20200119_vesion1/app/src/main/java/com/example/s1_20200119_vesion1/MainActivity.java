@@ -208,7 +208,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 switch (view.getId()) {
 
                     case R.id.lst_img1:
+                        Intent intent0 = new Intent(MainActivity.this, Main2Activity.class);
+                        try {
 
+                            String s = datas.getJSONObject(tag).toString();
+                            intent0.putExtra("data", s);
+                            Log.d(TAG, "onClick: "+s);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        startActivity(intent0);
                         break;
                     case R.id.lst_img2:
 
@@ -269,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     img1.setTag(i);
                     img2.setTag(i);
                     img3.setTag(i);
-
+                    img1.setOnClickListener(this);
                     img2.setOnClickListener(this);
                     img3.setOnClickListener(this);
                     try {
@@ -288,6 +297,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     txt1 = vh.getView(R.id.lst2_txt1);
                     txt2 = vh.getView(R.id.lst2_txt2);
                     img1.setTag(i);
+
+                    img1.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent0 = new Intent(MainActivity.this, Main2Activity.class);
+                            try {
+
+                                String s = datas.getJSONObject((int)view.getTag()).toString();
+                                Log.d(TAG, "onClick: "+s);
+                                intent0.putExtra("data", s);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            startActivity(intent0);
+                        }
+                    });
+
                     try {
                         JSONObject data = datas.getJSONObject(i);
                         txt1.setText(data.getString("assetName"));
@@ -296,6 +322,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         e.printStackTrace();
                     }
                 }
+
+
 
 
                 return view;
